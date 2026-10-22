@@ -1,13 +1,29 @@
 import { defineConfig } from '@playwright/test';
+import { env } from './src/config/env';
 
-/**
- * Configuração mínima da Fase 1.
- * Na Fase 2 entram: baseURL vinda do .env, headers padrão,
- * projeto de setup (login) e retries diferentes para CI.
- */
+const isCI = !!process.env.CI;
+
 export default defineConfig({
   testDir: './tests',
   fullyParallel: true,
-  forbidOnly: !!process.env.CI,
-  reporter: [['list'], ['html', { open: 'never' }]],
+  forbidOnly: isCI,
+
+  // Local: falha na hora, para você investigar. CI: tenta de novo para filtrar instabilidade de rede.
+  retries: isCI ? 2 : 0,
+
+  // Tempo máximo de cada teste (inclui todas as requisições dele)
+  timeout: 30_000,
+
+  reporter: isCI
+    ? [['list'], ['html', { open: 'never' }], ['github']]
+    : [['list'], ['html', { open: 'never' }]],
+
+  use: {
+    baseURL: env.API_BASE_URL,
+    extraHTTPHeaders: {
+      Accept: 'application/json',
+    },
+    // Guarda request/response completos dos testes que falharam (abre com: npx playwright show-trace)
+    trace: 'retain-on-failure',
+  },
 });

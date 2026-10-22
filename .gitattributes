@@ -1,0 +1,2 @@
+# Padroniza quebra de linha LF no repositório, independente do sistema operacional
+* text=auto eol=lf
