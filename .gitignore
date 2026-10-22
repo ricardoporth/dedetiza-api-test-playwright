@@ -1,0 +1,25 @@
+# Dependências
+node_modules/
+
+# Variáveis de ambiente (contém senha — NUNCA versionar)
+.env
+.env.*
+!.env.example
+
+# Saídas do Playwright
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
+
+# Token de autenticação salvo pelo setup
+.auth/
+
+# Relatório de cobertura gerado a cada execução
+coverage/
+
+# Sistema operacional / editor
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
