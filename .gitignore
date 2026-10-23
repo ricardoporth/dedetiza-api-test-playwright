@@ -16,7 +16,8 @@ playwright/.cache/
 .auth/
 
 # Relatório de cobertura gerado a cada execução
-coverage/
+# A barra inicial limita à raiz — sem ela, src/coverage/ (código-fonte) também seria ignorada
+/coverage/
 
 # Sistema operacional / editor
 .DS_Store

@@ -14,9 +14,13 @@ export default defineConfig({
   // Tempo máximo de cada teste (inclui todas as requisições dele)
   timeout: 30_000,
 
-  reporter: isCI
-    ? [['list'], ['html', { open: 'never' }], ['github']]
-    : [['list'], ['html', { open: 'never' }]],
+  reporter: [
+    ['list'],
+    ['html', { open: 'never' }],
+    // Gera coverage/index.html com a cobertura das rotas do Swagger
+    ['./src/coverage/coverage-reporter.ts'],
+    ...(isCI ? [['github'] as const] : []),
+  ],
 
   use: {
     baseURL: env.API_BASE_URL,

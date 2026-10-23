@@ -15,7 +15,7 @@
     "paths": {
       "@api/*": ["./src/api/*"],
       "@config/*": ["./src/config/*"],
-      "@fixtures/*": ["./src/fixtures/*"],
+      "@fixtures": ["./src/fixtures/index.ts"],
       "@factories/*": ["./src/factories/*"],
       "@schemas/*": ["./src/schemas/*"],
       "@utils/*": ["./src/utils/*"]
