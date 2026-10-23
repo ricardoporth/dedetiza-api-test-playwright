@@ -30,4 +30,11 @@ export default defineConfig({
     // Guarda request/response completos dos testes que falharam (abre com: npx playwright show-trace)
     trace: 'retain-on-failure',
   },
+
+  projects: [
+    // 1º: faz login uma vez e salva o token em .auth/admin.json
+    { name: 'setup', testMatch: /.*\.setup\.ts/ },
+    // 2º: todos os testes, só depois que o setup passar
+    { name: 'api', testMatch: /.*\.spec\.ts/, dependencies: ['setup'] },
+  ],
 });

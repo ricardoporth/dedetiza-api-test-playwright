@@ -14,6 +14,7 @@
     "noEmit": true,
     "paths": {
       "@api/*": ["./src/api/*"],
+      "@auth/*": ["./src/auth/*"],
       "@config/*": ["./src/config/*"],
       "@fixtures": ["./src/fixtures/index.ts"],
       "@factories/*": ["./src/factories/*"],

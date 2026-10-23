@@ -44,10 +44,14 @@ export default class CoverageReporter implements Reporter {
     const titlePath = test.titlePath();
     const fileIndex = titlePath.findIndex((part) => /\.(spec|test|setup)\.ts$/.test(part));
 
-    this.store.tests[test.id] = {
-      file: toPosix(path.relative(this.rootDir, test.location.file)),
+    const file = toPosix(path.relative(this.rootDir, test.location.file));
+    const title = titlePath.slice(fileIndex + 1).join(' › ');
+
+    // Chave = arquivo + título: continua a mesma se o teste mudar de projeto ou de linha
+    this.store.tests[`${file} › ${title}`] = {
+      file,
       folder: toPosix(path.relative(testDir, test.location.file)).split('/')[0] ?? '',
-      title: titlePath.slice(fileIndex + 1).join(' › '),
+      title,
       outcome: test.outcome(),
       calls: uniqueCalls(ofType(API_CALL_ANNOTATION).map(parseApiCall)),
       rules: ofType(RULE_ANNOTATION),
