@@ -15,6 +15,14 @@ export interface ErrorBody {
   timestamp: string;
 }
 
+/** Formato das listagens paginadas da API. */
+export interface Paginated<T> {
+  items: T[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
 /**
  * Resposta de uma chamada feita por um client.
  * Guarda o status, o corpo já convertido de JSON e sabe "desembrulhar" o envelope da API.
@@ -54,6 +62,11 @@ export class ApiResponse<TData = unknown> {
       );
     }
     return this.body.message;
+  }
+
+  /** Mensagem de erro sempre como lista — prático para usar com toContain(). */
+  get errorMessages(): string[] {
+    return [this.errorMessage].flat();
   }
 
   header(name: string): string | undefined {
