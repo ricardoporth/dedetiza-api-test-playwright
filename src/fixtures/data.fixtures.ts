@@ -29,8 +29,8 @@ export const test = api.extend<DataFixtures>({
 
         const deactivated = await clientsClient.deactivate(created.data.id);
         expect(deactivated.status, `Falha ao desativar cliente: ${JSON.stringify(deactivated.body)}`).toBe(200);
-        // O DELETE devolve o cliente resumido: completa com os dados do cadastro (pf, telefones...)
-        return { ...created.data, ...deactivated.data };
+        // O DELETE devolve o cliente resumido: mantém o cadastro completo e atualiza só o que mudou
+        return { ...created.data, active: deactivated.data.active, updatedAt: deactivated.data.updatedAt };
       }),
     );
   },

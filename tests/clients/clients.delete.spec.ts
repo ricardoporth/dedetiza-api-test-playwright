@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { test, expect } from '@fixtures';
+import { clientSummarySchema } from '@schemas/client.schema';
 
 test.describe('DELETE /clients/{id}', () => {
   const softDeleteRule = {
@@ -14,6 +15,8 @@ test.describe('DELETE /clients/{id}', () => {
     const response = await clientsClient.deactivate(client.id);
 
     expect(response.status).toBe(200);
+    // O DELETE devolve a versão resumida do cliente (sem pf/pj, telefones e endereços)
+    expect(response).toMatchContract(clientSummarySchema);
     expect(response.data.id).toBe(client.id);
     expect(response.data.active).toBe(false);
   });
@@ -26,6 +29,7 @@ test.describe('DELETE /clients/{id}', () => {
     // Comportamento atual, a confirmar com o time: o detalhe responde 404,
     // mas a listagem continua mostrando o cliente (teste abaixo) e o PATCH consegue reativá-lo.
     expect(response.status).toBe(404);
+    expect(response).toMatchErrorContract();
   });
 
   test('cliente desativado deve continuar na listagem com active=false', { annotation: softDeleteRule }, async ({ clientsClient, createClient }) => {
@@ -43,11 +47,13 @@ test.describe('DELETE /clients/{id}', () => {
     const response = await clientsClient.deactivate(client.id);
 
     expect(response.status).toBe(404);
+    expect(response).toMatchErrorContract();
   });
 
   test('deve retornar 404 para cliente inexistente', async ({ clientsClient }) => {
     const response = await clientsClient.deactivate(randomUUID());
 
     expect(response.status).toBe(404);
+    expect(response).toMatchErrorContract();
   });
 });

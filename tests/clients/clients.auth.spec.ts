@@ -28,6 +28,7 @@ test.describe('Clientes — autenticação', () => {
       const response = await call(anonymous);
 
       expect(response.status).toBe(401);
+      expect(response).toMatchErrorContract();
     });
   }
 });

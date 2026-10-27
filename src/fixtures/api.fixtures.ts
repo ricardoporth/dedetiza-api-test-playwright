@@ -2,6 +2,7 @@ import { AuthClient } from '@api/clients/auth.client';
 import { ClientsClient } from '@api/clients/clients.client';
 import { HealthClient } from '@api/clients/health.client';
 import { PermissionsClient } from '@api/clients/permissions.client';
+import { RolesClient } from '@api/clients/roles.client';
 import { UsersClient } from '@api/clients/users.client';
 import { test as core } from './core.fixtures';
 
@@ -16,6 +17,7 @@ export interface ApiFixtures {
   usersClient: UsersClient;
   permissionsClient: PermissionsClient;
   clientsClient: ClientsClient;
+  rolesClient: RolesClient;
 }
 
 export const test = core.extend<ApiFixtures>({
@@ -36,5 +38,8 @@ export const test = core.extend<ApiFixtures>({
   },
   clientsClient: async ({ request, adminToken, cleanup }, use) => {
     await use(new ClientsClient(request, adminToken, cleanup));
+  },
+  rolesClient: async ({ request, adminToken, cleanup }, use) => {
+    await use(new RolesClient(request, adminToken, cleanup));
   },
 });

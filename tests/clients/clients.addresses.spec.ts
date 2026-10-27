@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { test, expect } from '@fixtures';
 import { buildAddress, buildClientPF } from '@factories/client.factory';
+import { addressSchema } from '@schemas/client.schema';
 
 test.describe('POST /clients/{id}/addresses', () => {
   test('deve adicionar endereço ao cliente @smoke', async ({ clientsClient, createClient }) => {
@@ -10,6 +11,7 @@ test.describe('POST /clients/{id}/addresses', () => {
     const response = await clientsClient.addAddress(client.id, address);
 
     expect(response.status).toBe(201);
+    expect(response).toMatchContract(addressSchema);
     expect(response.data).toMatchObject({
       clientId: client.id,
       label: 'Trabalho',
@@ -42,6 +44,7 @@ test.describe('POST /clients/{id}/addresses', () => {
     const response = await clientsClient.addAddress(client.id, buildAddress({ zipcode: '123' }));
 
     expect(response.status).toBe(400);
+    expect(response).toMatchErrorContract();
     expect(response.errorMessages).toContain('CEP deve ter exatamente 8 digitos');
   });
 
@@ -65,6 +68,7 @@ test.describe('POST /clients/{id}/addresses', () => {
     const response = await clientsClient.addAddress(randomUUID(), buildAddress());
 
     expect(response.status).toBe(404);
+    expect(response).toMatchErrorContract();
   });
 });
 
@@ -76,6 +80,7 @@ test.describe('PATCH /clients/{id}/addresses/{addressId}', () => {
     const response = await clientsClient.updateAddress(client.id, addressId, { complement: 'Sala 42' });
 
     expect(response.status).toBe(200);
+    expect(response).toMatchContract(addressSchema);
     expect(response.data.complement).toBe('Sala 42');
   });
 
@@ -85,6 +90,7 @@ test.describe('PATCH /clients/{id}/addresses/{addressId}', () => {
     const response = await clientsClient.updateAddress(client.id, randomUUID(), { complement: 'Sala 42' });
 
     expect(response.status).toBe(404);
+    expect(response).toMatchErrorContract();
   });
 });
 
@@ -96,6 +102,8 @@ test.describe('DELETE /clients/{id}/addresses/{addressId}', () => {
     const response = await clientsClient.removeAddress(client.id, addressId);
 
     expect(response.status).toBe(200);
+    // A remoção de endereço responde só { statusCode, message }, sem "data"
+    expect(response).toMatchContract();
     const reloaded = await clientsClient.getById(client.id);
     expect(reloaded.data.addresses.map((address) => address.id)).not.toContain(addressId);
   });
@@ -106,5 +114,6 @@ test.describe('DELETE /clients/{id}/addresses/{addressId}', () => {
     const response = await clientsClient.removeAddress(client.id, randomUUID());
 
     expect(response.status).toBe(404);
+    expect(response).toMatchErrorContract();
   });
 });

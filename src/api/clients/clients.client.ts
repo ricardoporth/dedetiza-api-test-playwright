@@ -1,5 +1,8 @@
+import type { AddressData, ClientData, ClientSummaryData } from '@schemas/client.schema';
 import type { Paginated } from '../api-response';
 import { BaseClient } from '../base.client';
+
+export type { AddressData, ClientData, ClientSummaryData };
 
 export type PersonType = 'PF' | 'PJ';
 export type PhoneType = 'residencial' | 'comercial' | 'celular_sem_whatsapp' | 'celular_whatsapp';
@@ -66,68 +69,7 @@ export interface ClientFilters {
 }
 
 // ---------- O que recebemos ----------
-
-export interface PhoneData {
-  id: string;
-  number: string;
-  type: PhoneType;
-  additionalInfo: string | null;
-  isPrimary: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface AddressData {
-  id: string;
-  clientId: string;
-  label: string | null;
-  zipcode: string | null;
-  street: string | null;
-  number: string | null;
-  complement: string | null;
-  neighborhood: string | null;
-  city: string | null;
-  state: string | null;
-  latitude: number | null;
-  longitude: number | null;
-  formattedAddress: string | null;
-  geocodingSource: string | null;
-  geocodedAt: string | null;
-  isPrimary: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface PjData {
-  cnpj: string;
-  legalName: string;
-  tradeName: string | null;
-  ie: string | null;
-  im: string | null;
-  ufIndicator: string | null;
-  segment: string | null;
-  responsibleId: string | null;
-}
-
-export interface ClientData {
-  id: string;
-  tenantId: string;
-  personType: PersonType;
-  name: string;
-  email: string | null;
-  phone: string | null;
-  active: boolean;
-  pf: { cpf: string; rg: string | null } | null;
-  pj: PjData | null;
-  phones: PhoneData[];
-  primaryPhone: PhoneData | null;
-  addresses: AddressData[];
-  createdAt: string;
-  updatedAt: string;
-}
-
-/** Versão resumida devolvida pelo DELETE: sem pf/pj, telefones e endereços. */
-export type ClientSummaryData = Omit<ClientData, 'pf' | 'pj' | 'phones' | 'primaryPhone' | 'addresses'>;
+// Os tipos de resposta vêm dos schemas (src/schemas/client.schema.ts): uma única fonte de verdade.
 
 /**
  * Clientes (PF e PJ). Todo cliente criado com sucesso é desativado

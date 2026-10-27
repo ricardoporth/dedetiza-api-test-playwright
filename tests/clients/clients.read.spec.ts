@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { test, expect } from '@fixtures';
 import { buildAddress, buildClientPF, buildClientPJ } from '@factories/client.factory';
+import { clientListSchema, clientSchema } from '@schemas/client.schema';
 
 test.describe('GET /clients/{id}', () => {
   test('deve detalhar o cliente com telefones e endereços @smoke', async ({ clientsClient, createClient }) => {
@@ -9,6 +10,7 @@ test.describe('GET /clients/{id}', () => {
     const response = await clientsClient.getById(created.id);
 
     expect(response.status).toBe(200);
+    expect(response).toMatchContract(clientSchema);
     expect(response.data).toMatchObject({
       id: created.id,
       name: created.name,
@@ -23,6 +25,7 @@ test.describe('GET /clients/{id}', () => {
     const response = await clientsClient.getById(randomUUID());
 
     expect(response.status).toBe(404);
+    expect(response).toMatchErrorContract();
     expect(response.errorMessage).toBe('Cliente nao encontrado');
   });
 
@@ -30,6 +33,7 @@ test.describe('GET /clients/{id}', () => {
     const response = await clientsClient.getById('id-invalido');
 
     expect(response.status).toBe(400);
+    expect(response).toMatchErrorContract();
     expect(response.errorMessage).toBe('Validation failed (uuid is expected)');
   });
 });
@@ -41,6 +45,7 @@ test.describe('GET /clients', () => {
     const response = await clientsClient.list({ page: 1, limit: 5 });
 
     expect(response.status).toBe(200);
+    expect(response).toMatchContract(clientListSchema);
     const { items, total, page, limit } = response.data;
     expect(page).toBe(1);
     expect(limit).toBe(5);
@@ -85,6 +90,7 @@ test.describe('GET /clients', () => {
     const response = await clientsClient.list({ limit: 101 });
 
     expect(response.status).toBe(400);
+    expect(response).toMatchErrorContract();
     expect(response.errorMessages).toContain('limit must not be greater than 100');
   });
 
@@ -92,6 +98,7 @@ test.describe('GET /clients', () => {
     const response = await clientsClient.list({ page: 0 });
 
     expect(response.status).toBe(400);
+    expect(response).toMatchErrorContract();
     expect(response.errorMessages).toContain('page must not be less than 1');
   });
 });

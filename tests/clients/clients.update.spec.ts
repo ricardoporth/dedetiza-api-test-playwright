@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { test, expect } from '@fixtures';
 import { qaName } from '@factories/test-data';
+import { clientSchema } from '@schemas/client.schema';
 
 test.describe('PATCH /clients/{id}', () => {
   test('deve atualizar o nome e persistir a alteração @smoke', async ({ clientsClient, createClient }) => {
@@ -10,6 +11,7 @@ test.describe('PATCH /clients/{id}', () => {
     const response = await clientsClient.update(client.id, { name: newName });
 
     expect(response.status).toBe(200);
+    expect(response).toMatchContract(clientSchema);
     expect(response.data.name).toBe(newName);
     // Confirma que foi salvo de verdade, e não só devolvido na resposta
     const reloaded = await clientsClient.getById(client.id);
@@ -25,6 +27,7 @@ test.describe('PATCH /clients/{id}', () => {
     const response = await clientsClient.update(client.id, { personType: 'PJ' });
 
     expect(response.status).toBe(400);
+    expect(response).toMatchErrorContract();
     expect(response.errorMessages).toContain('property personType should not exist');
   });
 
@@ -39,6 +42,7 @@ test.describe('PATCH /clients/{id}', () => {
     const response = await clientsClient.update(client.id, { phones: [] });
 
     expect(response.status).toBe(400);
+    expect(response).toMatchErrorContract();
     expect(response.errorMessage).toBe('Cliente deve ter pelo menos 1 telefone principal');
   });
 
@@ -50,6 +54,7 @@ test.describe('PATCH /clients/{id}', () => {
     const response = await clientsClient.update(inactive.id, { active: true });
 
     expect(response.status).toBe(200);
+    expect(response).toMatchContract(clientSchema);
     expect(response.data.active).toBe(true);
     const reloaded = await clientsClient.getById(inactive.id);
     expect(reloaded.status).toBe(200);
@@ -59,5 +64,6 @@ test.describe('PATCH /clients/{id}', () => {
     const response = await clientsClient.update(randomUUID(), { name: qaName('Inexistente') });
 
     expect(response.status).toBe(404);
+    expect(response).toMatchErrorContract();
   });
 });

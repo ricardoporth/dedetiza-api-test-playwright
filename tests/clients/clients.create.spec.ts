@@ -1,6 +1,7 @@
 import { test, expect } from '@fixtures';
 import type { CreateClientRequest } from '@api/clients/clients.client';
 import { buildAddress, buildClientPF, buildClientPJ, buildPhone, buildPj } from '@factories/client.factory';
+import { clientSchema } from '@schemas/client.schema';
 import { formatCpf, generateCpf, withWrongCheckDigit } from '@utils/documents';
 
 test.describe('POST /clients — cadastro com sucesso', () => {
@@ -13,6 +14,7 @@ test.describe('POST /clients — cadastro com sucesso', () => {
 
     // Assert
     expect(response.status).toBe(201);
+    expect(response).toMatchContract(clientSchema);
     const client = response.data;
     expect(client.id).toBeTruthy();
     expect(client.personType).toBe('PF');
@@ -30,6 +32,7 @@ test.describe('POST /clients — cadastro com sucesso', () => {
     const response = await clientsClient.create(payload);
 
     expect(response.status).toBe(201);
+    expect(response).toMatchContract(clientSchema);
     expect(response.data.personType).toBe('PJ');
     expect(response.data.pf).toBeNull();
     expect(response.data.pj).toMatchObject({
@@ -45,6 +48,7 @@ test.describe('POST /clients — cadastro com sucesso', () => {
     const response = await clientsClient.create(buildClientPF({ addresses: [address] }));
 
     expect(response.status).toBe(201);
+    expect(response).toMatchContract(clientSchema);
     expect(response.data.addresses).toHaveLength(1);
     expect(response.data.addresses[0]).toMatchObject({ zipcode: address.zipcode, street: address.street });
   });
@@ -58,6 +62,7 @@ test.describe('POST /clients — cadastro com sucesso', () => {
     const response = await clientsClient.create(buildClientPF({ phones: undefined, phone: '11987654321' }));
 
     expect(response.status).toBe(201);
+    expect(response).toMatchContract(clientSchema);
     expect(response.data.primaryPhone).toMatchObject({
       number: '11987654321',
       type: 'celular_sem_whatsapp',
@@ -75,6 +80,7 @@ test.describe('POST /clients — documento duplicado', () => {
     const response = await clientsClient.create(buildClientPF({ pf: { cpf: existing.pf!.cpf } }));
 
     expect(response.status).toBe(409);
+    expect(response).toMatchErrorContract();
     expect(response.errorMessage).toBe('Ja existe um cliente com esse CPF neste tenant');
   });
 
@@ -89,6 +95,7 @@ test.describe('POST /clients — documento duplicado', () => {
     const response = await clientsClient.create(buildClientPF({ pf: { cpf: inactive.pf!.cpf } }));
 
     expect(response.status).toBe(409);
+    expect(response).toMatchErrorContract();
   });
 });
 
@@ -102,6 +109,7 @@ test.describe('POST /clients — telefone principal', () => {
     const response = await clientsClient.create(buildClientPF({ phones: undefined }));
 
     expect(response.status).toBe(400);
+    expect(response).toMatchErrorContract();
     expect(response.errorMessage).toBe('Cliente deve ter pelo menos 1 telefone principal');
   });
 
@@ -109,6 +117,7 @@ test.describe('POST /clients — telefone principal', () => {
     const response = await clientsClient.create(buildClientPF({ phones: [buildPhone({ isPrimary: false })] }));
 
     expect(response.status).toBe(400);
+    expect(response).toMatchErrorContract();
     expect(response.errorMessage).toBe('Cliente deve ter exatamente 1 telefone principal');
   });
 
@@ -116,6 +125,7 @@ test.describe('POST /clients — telefone principal', () => {
     const response = await clientsClient.create(buildClientPF({ phones: [buildPhone(), buildPhone({ type: 'comercial' })] }));
 
     expect(response.status).toBe(400);
+    expect(response).toMatchErrorContract();
     expect(response.errorMessage).toBe('Cliente deve ter exatamente 1 telefone principal');
   });
 });
@@ -178,6 +188,7 @@ test.describe('POST /clients — validação de campos', () => {
       const response = await clientsClient.create(payload());
 
       expect(response.status).toBe(400);
+      expect(response).toMatchErrorContract();
       for (const message of expected) {
         expect(response.errorMessages).toContain(message);
       }

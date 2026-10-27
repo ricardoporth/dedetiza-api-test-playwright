@@ -6,6 +6,8 @@
  *   core.fixtures  → adminToken, cleanup
  *   api.fixtures   → um client por módulo (healthClient, clientsClient...)
  *   data.fixtures  → preparação de dados (createClient...)
+ *
+ * O expect exportado tem as asserções de contrato (toMatchContract, toMatchErrorContract).
  */
 export { test } from './data.fixtures';
-export { expect } from '@playwright/test';
+export { expect } from './matchers';
