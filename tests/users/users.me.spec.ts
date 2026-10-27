@@ -1,6 +1,7 @@
 import { test, expect } from '@fixtures';
 import { env } from '@config/env';
 import { UsersClient } from '@api/clients/users.client';
+import { userSchema } from '@schemas/user.schema';
 import { tamperSignature } from '@utils/jwt';
 
 test.describe('GET /users/me', () => {
@@ -8,6 +9,7 @@ test.describe('GET /users/me', () => {
     const response = await usersClient.me();
 
     expect(response.status).toBe(200);
+    expect(response).toMatchContract(userSchema);
     expect(response.data.email).toBe(env.ADMIN_EMAIL);
     expect(response.data.active).toBe(true);
   });
@@ -28,6 +30,7 @@ test.describe('GET /users/me', () => {
     const response = await anonymous.me();
 
     expect(response.status).toBe(401);
+    expect(response).toMatchErrorContract();
     expect(response.errorMessage).toBe('Unauthorized');
   });
 
@@ -42,5 +45,6 @@ test.describe('GET /users/me', () => {
     const response = await withTamperedToken.me();
 
     expect(response.status).toBe(401);
+    expect(response).toMatchErrorContract();
   });
 });

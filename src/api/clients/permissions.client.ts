@@ -1,13 +1,7 @@
+import type { PermissionData } from '@schemas/permission.schema';
 import { BaseClient } from '../base.client';
 
-export interface PermissionData {
-  id: string;
-  /** Identificador no formato "modulo:acao". Ex.: "clients:create" */
-  slug: string;
-  module: string;
-  description: string;
-  createdAt: string;
-}
+export type { PermissionData };
 
 export class PermissionsClient extends BaseClient {
   /** Catálogo com todas as permissões que existem no sistema */

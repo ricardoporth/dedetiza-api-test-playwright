@@ -1,11 +1,13 @@
 import { test, expect } from '@fixtures';
 import { PermissionsClient } from '@api/clients/permissions.client';
+import { myPermissionsSchema, permissionListSchema } from '@schemas/permission.schema';
 
 test.describe('GET /permissions', () => {
   test('deve listar o catálogo de permissões no formato modulo:acao', async ({ permissionsClient }) => {
     const response = await permissionsClient.list();
 
     expect(response.status).toBe(200);
+    expect(response).toMatchContract(permissionListSchema);
     expect(response.data.length).toBeGreaterThan(0);
     for (const permission of response.data) {
       expect.soft(permission.slug).toMatch(/^[\w-]+:[\w-]+$/);
@@ -34,6 +36,7 @@ test.describe('GET /permissions', () => {
     const response = await new PermissionsClient(request).list();
 
     expect(response.status).toBe(401);
+    expect(response).toMatchErrorContract();
   });
 });
 
@@ -42,6 +45,7 @@ test.describe('GET /permissions/me', () => {
     const response = await permissionsClient.me();
 
     expect(response.status).toBe(200);
+    expect(response).toMatchContract(myPermissionsSchema);
     expect(response.data).toEqual(expect.arrayContaining(['users:read', 'clients:read']));
     expect(new Set(response.data).size).toBe(response.data.length);
   });
@@ -63,5 +67,6 @@ test.describe('GET /permissions/me', () => {
     const response = await new PermissionsClient(request).me();
 
     expect(response.status).toBe(401);
+    expect(response).toMatchErrorContract();
   });
 });

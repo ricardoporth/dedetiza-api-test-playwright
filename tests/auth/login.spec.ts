@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { test, expect } from '@fixtures';
 import { env } from '@config/env';
+import { loginSchema } from '@schemas/auth.schema';
 
 /**
  * ATENÇÃO: o POST /auth/login aceita só 5 tentativas por minuto (x-ratelimit-limit: 5).
@@ -18,6 +19,7 @@ test.describe('POST /auth/login', () => {
 
     // Assert
     expect(response.status).toBe(200);
+    expect(response).toMatchContract(loginSchema);
     const { accessToken, expiresIn, user } = response.data;
     expect(accessToken).toMatch(/^eyJ[\w-]+\.[\w-]+\.[\w-]+$/); // formato JWT: header.payload.assinatura
     expect(expiresIn).toBe('8h');
@@ -35,6 +37,7 @@ test.describe('POST /auth/login', () => {
     });
 
     expect(response.status).toBe(400);
+    expect(response).toMatchErrorContract();
     expect(response.errorMessage).toBe('Credenciais inválidas');
   });
 
@@ -51,6 +54,7 @@ test.describe('POST /auth/login', () => {
     });
 
     expect(response.status).toBe(400);
+    expect(response).toMatchErrorContract();
     expect(response.errorMessage).toBe('Credenciais inválidas');
   });
 
@@ -58,6 +62,7 @@ test.describe('POST /auth/login', () => {
     const response = await authClient.login({});
 
     expect(response.status).toBe(400);
+    expect(response).toMatchErrorContract();
     expect(response.errorMessage).toEqual(
       expect.arrayContaining([
         'O tenantId deve ser um UUID válido.',

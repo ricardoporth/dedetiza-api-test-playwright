@@ -1,21 +1,12 @@
+import type { LoginData } from '@schemas/auth.schema';
 import { BaseClient } from '../base.client';
+
+export type { LoginData };
 
 export interface LoginRequest {
   tenantId: string;
   email: string;
   password: string;
-}
-
-export interface LoginData {
-  accessToken: string;
-  expiresIn: string;
-  user: {
-    id: string;
-    name: string;
-    email: string;
-    tenantId: string;
-    roleId: string;
-  };
 }
 
 /**
