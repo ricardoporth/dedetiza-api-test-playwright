@@ -9,6 +9,7 @@
   "scripts": {
     "test": "playwright test",
     "test:list": "playwright test --list",
+    "test:rate-limit": "cross-env RUN_RATE_LIMIT_TESTS=1 playwright test --grep @rate-limit",
     "report": "playwright show-report",
     "coverage:reset": "node -e \"require('fs').rmSync('coverage', { recursive: true, force: true })\"",
     "typecheck": "tsc --noEmit"
@@ -16,6 +17,7 @@
   "devDependencies": {
     "@playwright/test": "^1.64.1",
     "@types/node": "^20.19.43",
+    "cross-env": "^10.1.0",
     "typescript": "^7.0.2"
   },
   "dependencies": {

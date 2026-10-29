@@ -12,6 +12,7 @@ export interface Session {
 
 /** .auth/ fica na raiz do projeto e está no .gitignore — token é credencial. */
 export const ADMIN_SESSION_FILE = path.resolve(__dirname, '../../.auth/admin.json');
+export const NO_PERMISSION_SESSION_FILE = path.resolve(__dirname, '../../.auth/no-permission.json');
 
 /** Margem de segurança: um token que expira em menos de 30 min não é reaproveitado. */
 const EXPIRATION_MARGIN_MS = 30 * 60 * 1000;

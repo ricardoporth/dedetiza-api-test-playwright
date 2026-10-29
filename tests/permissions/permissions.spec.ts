@@ -22,6 +22,7 @@ test.describe('GET /permissions', () => {
   }, async ({ permissionsClient }) => {
     // Bug conhecido: o teste falha hoje e isso é o esperado. Quando corrigirem,
     // o Playwright acusa "passou inesperadamente" — aí é só remover esta linha.
+    // Relatório: bugs/BUG-001-permissao-audit-logs-fora-do-padrao.md
     test.fail();
 
     const response = await permissionsClient.list();

@@ -48,21 +48,24 @@ test.describe('POST /clients/{id}/addresses', () => {
     expect(response.errorMessages).toContain('CEP deve ter exatamente 8 digitos');
   });
 
-  test('deve recusar CEP com letras ou símbolos', {
-    annotation: {
-      type: 'bug',
-      description:
-        'BUG-002: a API só valida o TAMANHO do CEP (8 caracteres) — aceita e salva "ABCDEFGH", "0100-100" e "01001 00"',
-    },
-  }, async ({ clientsClient, createClient }) => {
-    // Bug conhecido: hoje a API responde 201. Quando corrigirem, remova esta linha.
-    test.fail();
-    const client = await createClient();
+  // Teste de regressão do BUG-002 (corrigido em 29/10/2026): estes valores já foram aceitos
+  // pela API. Se algum voltar a passar, o bug reapareceu. Relatório: bugs/BUG-002-cep-aceita-letras-e-simbolos.md
+  for (const zipcode of ['ABCDEFGH', '0100-100', '01001 00']) {
+    test(`deve recusar CEP com letras ou símbolos: "${zipcode}"`, {
+      annotation: {
+        type: 'regra',
+        description: 'RN-CLI-012: o CEP aceita apenas 8 dígitos numéricos, sem hífen ou espaço (corrigido no BUG-002)',
+      },
+    }, async ({ clientsClient, createClient }) => {
+      const client = await createClient();
 
-    const response = await clientsClient.addAddress(client.id, buildAddress({ zipcode: 'ABCDEFGH' }));
+      const response = await clientsClient.addAddress(client.id, buildAddress({ zipcode }));
 
-    expect(response.status).toBe(400);
-  });
+      expect(response.status).toBe(400);
+      expect(response).toMatchErrorContract();
+      expect(response.errorMessages).toContain('CEP deve ter exatamente 8 digitos');
+    });
+  }
 
   test('deve retornar 404 para cliente inexistente', async ({ clientsClient }) => {
     const response = await clientsClient.addAddress(randomUUID(), buildAddress());

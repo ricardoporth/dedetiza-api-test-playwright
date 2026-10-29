@@ -26,7 +26,7 @@ test.describe('GET /clients/{id}', () => {
 
     expect(response.status).toBe(404);
     expect(response).toMatchErrorContract();
-    expect(response.errorMessage).toBe('Cliente nao encontrado');
+    expect(response.errorMessage).toBe('Cliente não encontrado');
   });
 
   test('deve retornar 400 para id fora do formato UUID', async ({ clientsClient }) => {

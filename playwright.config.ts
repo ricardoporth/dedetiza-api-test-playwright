@@ -32,9 +32,11 @@ export default defineConfig({
   },
 
   projects: [
-    // 1º: faz login uma vez e salva o token em .auth/admin.json
-    { name: 'setup', testMatch: /.*\.setup\.ts/ },
-    // 2º: todos os testes, só depois que o setup passar
-    { name: 'api', testMatch: /.*\.spec\.ts/, dependencies: ['setup'] },
+    // 1º: faz login do admin uma vez e salva o token em .auth/admin.json
+    { name: 'setup', testMatch: /auth\.setup\.ts/ },
+    // 2º: prepara as identidades de teste (ex.: usuário sem permissões) usando o token do admin
+    { name: 'identities', testMatch: /.*\.setup\.ts/, testIgnore: /auth\.setup\.ts/, dependencies: ['setup'] },
+    // 3º: todos os testes, só depois que os setups passarem
+    { name: 'api', testMatch: /.*\.spec\.ts/, dependencies: ['identities'] },
   ],
 });

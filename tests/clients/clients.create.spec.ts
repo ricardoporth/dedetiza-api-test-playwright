@@ -81,7 +81,7 @@ test.describe('POST /clients — documento duplicado', () => {
 
     expect(response.status).toBe(409);
     expect(response).toMatchErrorContract();
-    expect(response.errorMessage).toBe('Ja existe um cliente com esse CPF neste tenant');
+    expect(response.errorMessage).toBe('Já existe um cliente com esse CPF neste tenant');
   });
 
   test('CPF de cliente desativado continua bloqueado', {
@@ -154,12 +154,12 @@ test.describe('POST /clients — validação de campos', () => {
     {
       scenario: 'pessoa física sem o bloco "pf"',
       payload: () => buildClientPF({ pf: undefined }),
-      expected: ['pf e obrigatorio para Pessoa Fisica'],
+      expected: ['pf é obrigatório para Pessoa Física'],
     },
     {
       scenario: 'CPF com dígito verificador errado',
       payload: () => buildClientPF({ pf: { cpf: withWrongCheckDigit(generateCpf()) } }),
-      expected: ['pf.CPF invalido'],
+      expected: ['pf.CPF inválido'],
     },
     {
       scenario: 'CPF com máscara (pontos e traço)',
@@ -169,12 +169,12 @@ test.describe('POST /clients — validação de campos', () => {
     {
       scenario: 'CNPJ inválido',
       payload: () => buildClientPJ({ pj: buildPj({ cnpj: '11111111111111' }) }),
-      expected: ['pj.CNPJ invalido'],
+      expected: ['pj.CNPJ inválido'],
     },
     {
       scenario: 'PJ contribuinte sem inscrição estadual',
       payload: () => buildClientPJ({ pj: buildPj({ ieIndicator: 'contribuinte' }) }),
-      expected: ['pj.ie e obrigatoria quando ieIndicator e contribuinte'],
+      expected: ['pj.ie é obrigatória quando ieIndicator é contribuinte'],
     },
     {
       scenario: 'endereço com CEP e UF inválidos',

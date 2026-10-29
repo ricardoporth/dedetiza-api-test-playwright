@@ -7,9 +7,18 @@ export interface RoleFilters {
   limit?: number;
 }
 
+export interface CreateRoleRequest {
+  name: string;
+  description?: string;
+}
+
 /** Perfis de acesso: agrupam as permissões que um usuário recebe. */
 export class RolesClient extends BaseClient {
   list(filters: RoleFilters = {}) {
     return this.get<Paginated<RoleData>>('roles', { query: { ...filters } });
+  }
+
+  create(payload: CreateRoleRequest) {
+    return this.post<RoleData>('roles', { body: payload });
   }
 }
