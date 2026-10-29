@@ -17,18 +17,4 @@ export class AuthClient extends BaseClient {
   login(credentials: Partial<LoginRequest>) {
     return this.post<LoginData>('auth/login', { body: credentials });
   }
-
-  /**
-   * Login que respeita o rate limit: se a API responder 429, espera o tempo que ela
-   * mesma informa no header e tenta mais uma vez. Use no setup, nunca nos testes de login.
-   */
-  async loginRespectingRateLimit(credentials: LoginRequest) {
-    const response = await this.login(credentials);
-    if (response.status !== 429) return response;
-
-    const waitSeconds = Number(response.header('retry-after') ?? response.header('x-ratelimit-reset') ?? 60);
-    console.log(`  [auth] Limite de login atingido (429). Aguardando ${waitSeconds}s conforme informado pela API...`);
-    await new Promise((resolve) => setTimeout(resolve, (waitSeconds + 1) * 1000));
-    return this.login(credentials);
-  }
 }

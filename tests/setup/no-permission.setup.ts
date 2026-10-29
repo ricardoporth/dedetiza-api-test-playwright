@@ -16,8 +16,6 @@ import { generateCpf } from '@utils/documents';
  *  4. Faz login e salva a sessão em .auth/no-permission.json.
  */
 setup('autenticar usuário sem permissões', async ({ authClient, rolesClient, usersClient }) => {
-  setup.setTimeout(120_000);
-
   const cached = readSession(NO_PERMISSION_SESSION_FILE);
   if (cached && isSessionReusable(cached, { email: identity.email, tenantId: env.TENANT_ID })) {
     setup.info().annotations.push({ type: 'info', description: `Token reaproveitado do cache (válido até ${cached.expiresAt})` });
@@ -53,7 +51,7 @@ setup('autenticar usuário sem permissões', async ({ authClient, rolesClient, u
   });
 
   const login = await withoutCoverage(() =>
-    authClient.loginRespectingRateLimit({ tenantId: env.TENANT_ID, email: identity.email, password }),
+    authClient.login({ tenantId: env.TENANT_ID, email: identity.email, password }),
   );
   expect(login.status, `Login do usuário sem permissões falhou: ${JSON.stringify(login.body)}`).toBe(200);
   saveSession(NO_PERMISSION_SESSION_FILE, login.data);

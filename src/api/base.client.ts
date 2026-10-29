@@ -23,8 +23,15 @@ export interface RequestOptions {
  *  - converte o corpo da resposta de JSON
  *  - registra a chamada para o relatório de cobertura
  *  - registra para limpeza o que o teste criar (quando recebe um Cleanup)
+ *  - respeita o limite de requisições da API (429): espera o tempo informado e tenta de novo
  */
 export abstract class BaseClient {
+  /**
+   * Com true (padrão), uma resposta 429 faz o client esperar o tempo que a API pede e repetir
+   * a chamada. Desligue só nos testes que querem VER o 429:  client.retryOnRateLimit = false
+   */
+  retryOnRateLimit = true;
+
   constructor(
     protected readonly request: APIRequestContext,
     private readonly token?: string,
@@ -59,19 +66,55 @@ export abstract class BaseClient {
   private async send<T>(method: HttpMethod, route: string, options: RequestOptions = {}) {
     // Sem a barra inicial: com ela, o Playwright descartaria o /api/v1 da baseURL
     const template = route.replace(/^\/+/, '');
+    const call = () =>
+      this.request.fetch(fillPathParams(template, options.path), {
+        method,
+        params: withoutUndefined(options.query),
+        data: options.body,
+        headers: {
+          ...(this.token && { Authorization: `Bearer ${this.token}` }),
+          ...options.headers,
+        },
+      });
 
-    const response = await this.request.fetch(fillPathParams(template, options.path), {
-      method,
-      params: withoutUndefined(options.query),
-      data: options.body,
-      headers: {
-        ...(this.token && { Authorization: `Bearer ${this.token}` }),
-        ...options.headers,
-      },
-    });
+    let response = await call();
+    for (let attempt = 1; response.status() === 429 && this.retryOnRateLimit && attempt <= MAX_RATE_LIMIT_RETRIES; attempt++) {
+      const seconds = rateLimitWaitSeconds(response);
+      noteRateLimitWait(`${method} ${template} → 429: aguardando ${seconds}s (tentativa ${attempt}/${MAX_RATE_LIMIT_RETRIES})`);
+      await new Promise((resolve) => setTimeout(resolve, (seconds + 1) * 1000));
+      response = await call();
+    }
 
+    // Só a resposta final conta para a cobertura (um 429 que foi repetido não era o alvo do teste)
     recordApiCall(method, template, response.status());
     return new ApiResponse<T>(response, response.status(), await parseBody(response));
+  }
+}
+
+/**
+ * Quantas vezes repetir depois de um 429. Duas, porque outro teste rodando em paralelo
+ * pode consumir o limite de novo logo depois que a janela reabre.
+ */
+const MAX_RATE_LIMIT_RETRIES = 2;
+
+/** Tempo de espera informado pela própria API (em segundos). */
+function rateLimitWaitSeconds(response: APIResponse): number {
+  const headers = response.headers();
+  const seconds = Number(headers['retry-after'] ?? headers['x-ratelimit-reset']);
+  return Number.isFinite(seconds) && seconds > 0 ? Math.min(seconds, 60) : 60;
+}
+
+/** Deixa registrado (terminal + relatório do Playwright) que o teste esperou pelo limite da API. */
+function noteRateLimitWait(description: string) {
+  console.log(`  [limite da API] ${description}`);
+  currentTestInfo()?.annotations.push({ type: 'limite-de-requisicoes', description });
+}
+
+function currentTestInfo() {
+  try {
+    return test.info();
+  } catch {
+    return undefined; // fora de um teste (ex.: global setup)
   }
 }
 
@@ -116,11 +159,5 @@ export async function withoutCoverage<T>(action: () => Promise<T>): Promise<T> {
 /** Anota a chamada no teste em execução. Fora de um teste (ex.: global setup) não faz nada. */
 function recordApiCall(method: HttpMethod, path: string, status: number) {
   if (coveragePaused > 0) return;
-  let info;
-  try {
-    info = test.info();
-  } catch {
-    return;
-  }
-  info.annotations.push({ type: API_CALL_ANNOTATION, description: formatApiCall({ method, path, status }) });
+  currentTestInfo()?.annotations.push({ type: API_CALL_ANNOTATION, description: formatApiCall({ method, path, status }) });
 }

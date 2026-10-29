@@ -7,9 +7,6 @@ import { ADMIN_SESSION_FILE, isSessionReusable, readSession, saveSession } from 
  * Reaproveita o token salvo enquanto ele for válido — o login tem limite de 5 tentativas por minuto.
  */
 setup('autenticar admin', async ({ authClient }) => {
-  // Margem para uma eventual espera de rate limit (até 60s)
-  setup.setTimeout(120_000);
-
   const cached = readSession(ADMIN_SESSION_FILE);
   if (cached && isSessionReusable(cached, { email: env.ADMIN_EMAIL, tenantId: env.TENANT_ID })) {
     setup.info().annotations.push({
@@ -19,7 +16,8 @@ setup('autenticar admin', async ({ authClient }) => {
     return;
   }
 
-  const response = await authClient.loginRespectingRateLimit({
+  // Se o limite de login estiver estourado (429), o client espera e tenta de novo sozinho
+  const response = await authClient.login({
     tenantId: env.TENANT_ID,
     email: env.ADMIN_EMAIL,
     password: env.ADMIN_PASSWORD,

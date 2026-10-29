@@ -162,7 +162,6 @@ test.describe('GET /users/{id} — 429 limite de requisições', () => {
    *   npm run test:rate-limit
    */
   test.skip(!process.env.RUN_RATE_LIMIT_TESTS, 'Teste que bloqueia a rota por 60s. Rode com: npm run test:rate-limit');
-  test.setTimeout(120_000);
 
   test('deve responder 429 ao passar de 100 requisições por minuto @rate-limit', {
     annotation: {
@@ -170,6 +169,8 @@ test.describe('GET /users/{id} — 429 limite de requisições', () => {
       description: 'RN-USR-005: GET /users/{id} aceita no máximo 100 requisições por minuto (429)',
     },
   }, async ({ usersClient, adminToken }) => {
+    // Aqui queremos VER o 429: desliga a espera automática do client
+    usersClient.retryOnRateLimit = false;
     const { sub: adminId } = decodeJwtPayload(adminToken);
     const first = await usersClient.getById(adminId);
     expect(first.header('x-ratelimit-limit')).toBe('100');

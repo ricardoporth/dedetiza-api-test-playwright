@@ -11,8 +11,9 @@ export default defineConfig({
   // Local: falha na hora, para você investigar. CI: tenta de novo para filtrar instabilidade de rede.
   retries: isCI ? 2 : 0,
 
-  // Tempo máximo de cada teste (inclui todas as requisições dele)
-  timeout: 30_000,
+  // Tempo máximo de cada teste (inclui todas as requisições dele). Um teste normal leva ~1s,
+  // mas quando a API responde 429 o client espera até 60s antes de repetir (até 2 vezes).
+  timeout: 150_000,
 
   reporter: [
     ['list'],
