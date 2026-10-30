@@ -1,6 +1,7 @@
 ---
 id: BUG-XXX
-titulo: <frase objetiva que descreve o problema>
+
+titulo: BUG-API - <rota> - <Título>
 modulo: <tag do módulo no Swagger, ex.: clients>
 rotas: <rotas afetadas, ex.: POST /clients>
 severidade: <Crítica | Alta | Média | Baixa>
@@ -8,12 +9,10 @@ status: Aberto
 ambiente: dev — https://api-dedetiza.gladiai.com/api/v1
 encontrado_em: AAAA-MM-DD
 verificado_em: AAAA-MM-DD
-corrigido_em:
-clickup:
 teste: <arquivo.spec.ts> › <nome do teste>
 ---
 
-# BUG-XXX — <Título>
+# BUG-API — <Título>
 
 ## Descrição
 <O que está errado, em 2 ou 3 frases. Sem opinião: só o comportamento observado.>

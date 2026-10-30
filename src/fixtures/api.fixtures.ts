@@ -1,8 +1,10 @@
 import { AuthClient } from '@api/clients/auth.client';
 import { ClientsClient } from '@api/clients/clients.client';
 import { HealthClient } from '@api/clients/health.client';
+import { MaterialsClient } from '@api/clients/materials.client';
 import { PermissionsClient } from '@api/clients/permissions.client';
 import { RolesClient } from '@api/clients/roles.client';
+import { ServiceTypesClient } from '@api/clients/service-types.client';
 import { UsersClient } from '@api/clients/users.client';
 import { test as core } from './core.fixtures';
 
@@ -18,6 +20,8 @@ export interface ApiFixtures {
   permissionsClient: PermissionsClient;
   clientsClient: ClientsClient;
   rolesClient: RolesClient;
+  serviceTypesClient: ServiceTypesClient;
+  materialsClient: MaterialsClient;
 }
 
 export const test = core.extend<ApiFixtures>({
@@ -41,5 +45,11 @@ export const test = core.extend<ApiFixtures>({
   },
   rolesClient: async ({ request, adminToken, cleanup }, use) => {
     await use(new RolesClient(request, adminToken, cleanup));
+  },
+  serviceTypesClient: async ({ request, adminToken, cleanup }, use) => {
+    await use(new ServiceTypesClient(request, adminToken, cleanup));
+  },
+  materialsClient: async ({ request, adminToken, cleanup }, use) => {
+    await use(new MaterialsClient(request, adminToken, cleanup));
   },
 });
