@@ -1,5 +1,6 @@
 import type { ApiResponse, ErrorBody, Paginated } from '@api/api-response';
 import type { ServiceTypeData } from '@schemas/service-type.schema';
+import type { VehicleData } from '@schemas/vehicle.schema';
 
 /**
  * Heurísticas de contrato: regras que um schema (Zod) não consegue expressar sozinho, porque
@@ -77,6 +78,31 @@ export function serviceTypeHeuristics(serviceType: ServiceTypeData, { tenantId }
     }
     problems.push(...timestampHeuristics(suggested, where));
   });
+  return problems;
+}
+
+/**
+ * Regras de um veículo que dependem de mais de um campo:
+ *  - pertence ao tenant de quem consultou
+ *  - o almoço padrão vem completo (início E fim) ou vazio (os dois null) — nunca pela metade
+ *  - quando existe, o início do almoço vem antes do fim
+ *  - o ano não é posterior ao ano que vem (veículo "do futuro" indica erro de digitação ou de conversão)
+ */
+export function vehicleHeuristics(vehicle: VehicleData, { tenantId }: { tenantId: string }): string[] {
+  const label = `veículo ${vehicle.plate} (${vehicle.id})`;
+  const problems = timestampHeuristics(vehicle, label);
+
+  if (vehicle.tenantId !== tenantId) problems.push(`${label}: tenantId ${vehicle.tenantId} não é o tenant da sessão (${tenantId})`);
+
+  const { defaultLunchStart: start, defaultLunchEnd: end } = vehicle;
+  if ((start === null) !== (end === null)) {
+    problems.push(`${label}: almoço pela metade (início ${start}, fim ${end})`);
+  } else if (start !== null && end !== null && Date.parse(start) >= Date.parse(end)) {
+    problems.push(`${label}: início do almoço (${start}) não é anterior ao fim (${end})`);
+  }
+
+  const nextYear = new Date().getUTCFullYear() + 1;
+  if (vehicle.year > nextYear) problems.push(`${label}: ano ${vehicle.year} é posterior a ${nextYear}`);
   return problems;
 }
 

@@ -4,9 +4,11 @@ import type { ClientData, CreateClientRequest } from '@api/clients/clients.clien
 import type { CreateUserRequest, UserData } from '@api/clients/users.client';
 import type { MaterialData } from '@api/clients/materials.client';
 import type { CreateServiceTypeRequest, ServiceTypeData } from '@api/clients/service-types.client';
+import type { CreateVehicleRequest, VehicleData } from '@api/clients/vehicles.client';
 import { buildClientPF } from '@factories/client.factory';
 import { buildUser } from '@factories/user.factory';
 import { buildMaterial, buildServiceType } from '@factories/service-type.factory';
+import { buildVehicle } from '@factories/vehicle.factory';
 import { decodeJwtPayload } from '@utils/jwt';
 import { test as api } from './api.fixtures';
 
@@ -44,6 +46,14 @@ export interface DataFixtures {
 
   /** Cria um material ativo (pré-condição dos materiais sugeridos). Com { active: false }, desativado. */
   createMaterial: (options?: { active?: boolean }) => Promise<MaterialData>;
+
+  /**
+   * Cria um veículo pronto para uso. Ex.:
+   *   const vehicle = await createVehicle();
+   *   const withLunch = await createVehicle(buildFullVehicle());
+   *   const inactive = await createVehicle(undefined, { active: false });   // desativado pelo DELETE
+   */
+  createVehicle: (payload?: CreateVehicleRequest, options?: { active?: boolean }) => Promise<VehicleData>;
 }
 
 export const test = api.extend<DataFixtures>({
@@ -108,4 +118,17 @@ export const test = api.extend<DataFixtures>({
     );
   },
 
+  createVehicle: async ({ vehiclesClient }, use) => {
+    await use(async (payload = buildVehicle(), { active = true } = {}) =>
+      withoutCoverage(async () => {
+        const created = await vehiclesClient.create(payload);
+        expect(created.status, `Falha ao preparar veículo: ${JSON.stringify(created.body)}`).toBe(201);
+        if (active) return created.data;
+
+        const deactivated = await vehiclesClient.deactivate(created.data.id);
+        expect(deactivated.status, `Falha ao desativar veículo: ${JSON.stringify(deactivated.body)}`).toBe(200);
+        return deactivated.data;
+      }),
+    );
+  },
 });

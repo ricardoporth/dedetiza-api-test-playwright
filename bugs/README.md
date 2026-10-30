@@ -18,9 +18,12 @@ O arquivo é a fonte do relatório: o conteúdo pode ser copiado direto para o t
 | [BUG-008](BUG-008-nome-de-tipo-de-servico-duplicado.md) | Nome duplicado com maiúsculas ou espaços nas pontas é aceito | service-types | Média | Aberto | — |
 | [BUG-009](BUG-009-nome-de-tipo-de-servico-so-com-espacos.md) | Nome de tipo de serviço só com espaços é aceito | service-types | Baixa | Aberto | — |
 | [BUG-010](BUG-010-numero-acima-do-limite-causa-erro-500.md) | Garantia ou quantidade acima do limite do banco causa erro 500 | service-types | Média | Aberto | — |
-| [BUG-011](BUG-011-null-em-campos-nullable-causa-500.md) | `null` em campos documentados como nullable causa erro 500 | service-types | Média | Aberto | — |
+| [BUG-011](BUG-011-null-em-campos-nullable-causa-500.md) | `null` em campos documentados como nullable causa erro 500 | service-types, vehicles | Média | Aberto | — |
 | [BUG-012](BUG-012-updatedat-nao-muda-ao-trocar-materiais.md) | Trocar só os materiais sugeridos não atualiza o `updatedAt` | service-types | Baixa | Aberto | — |
-| [BUG-013](BUG-013-filtro-trata-curingas-do-sql.md) | Filtro por nome trata `_` e `%` como curingas do SQL | service-types | Baixa | Aberto | — |
+| [BUG-013](BUG-013-filtro-trata-curingas-do-sql.md) | Filtro de texto trata `_` e `%` como curingas do SQL | service-types, vehicles | Baixa | Aberto | — |
+| [BUG-014](BUG-014-modelo-de-veiculo-so-com-espacos.md) | Modelo do veículo só com espaços é aceito | vehicles | Baixa | Aberto | — |
+| [BUG-015](BUG-015-filtro-active-false-devolve-ativos.md) | Filtro `active=false` devolve veículos ativos (e `active=abc` é aceito) | vehicles | Média | Aberto | — |
+| [BUG-016](BUG-016-almoco-invalido-responde-409.md) | Intervalo de almoço inválido responde 409 em vez de 400 | vehicles | Baixa | Aberto | — |
 
 ## Como registrar um bug novo
 

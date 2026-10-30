@@ -1,8 +1,8 @@
 ---
 id: BUG-013
 titulo: O filtro por nome trata "_" e "%" como curingas do SQL (LIKE sem escape)
-modulo: service-types
-rotas: GET /service-types
+modulo: service-types, vehicles
+rotas: GET /service-types, GET /vehicles
 severidade: Baixa
 status: Aberto
 ambiente: dev — https://api-dedetiza.gladiai.com/api/v1
@@ -44,14 +44,26 @@ Nenhum resultado: nenhum nome contém o texto `abc_23`.
 Baixo: a busca traz resultados a mais para quem digita `_` ou `%` (ex.: códigos como `SERV_RES`). Não há
 risco de injeção de SQL — o valor vai como parâmetro —, só o significado dos curingas.
 
+### Também em vehicles (30/10/2026)
+| Filtro `plate` | Resultado |
+|---|---|
+| `%` | todos os veículos (`total` 15, igual à listagem sem filtro) |
+| `_` | todos os veículos |
+
+Nenhuma placa válida contém `%` ou `_` (o formato aceita só letras e números), então o resultado correto
+seria uma lista vazia.
+
 ## Abrangência
-- Confirmado em: `GET /service-types?name=`.
-- Não verificado em: `GET /service-types?internalCode=` (também faz busca parcial) e nos filtros de nome de
-  outros módulos.
+- Confirmado em: `GET /service-types?name=` e `GET /vehicles?plate=`.
+- O defeito se repete em módulos diferentes, provavelmente com a mesma causa (um helper de busca parcial
+  sem escape). Vale corrigir no ponto comum.
+- Não verificado em: `GET /service-types?internalCode=` (também faz busca parcial) e nos filtros de texto
+  dos módulos ainda não testados.
 
 ## Sugestão de correção
 Escapar `\`, `%` e `_` no valor antes de montar o `LIKE`/`ILIKE` (ex.: `ILIKE :name ESCAPE '\'`).
 
 ## Teste automatizado
 `tests/service-types/service-types.read.spec.ts` → "\"_\" e \"%\" no filtro devem ser tratados como texto, não como curinga"
-Hoje marcado como falha esperada (`test.fail()`).
+`tests/vehicles/vehicles.read.spec.ts` → "\"%\" / \"_\" no filtro de placa deve ser tratado como texto, não como curinga"
+Hoje marcados como falha esperada (`test.fail()`).
