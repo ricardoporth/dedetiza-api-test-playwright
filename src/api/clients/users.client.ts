@@ -48,11 +48,25 @@ export class UsersClient extends BaseClient {
     return this.get<Paginated<UserData>>('users', { query: { ...filters } });
   }
 
-  create(payload: CreateUserRequest) {
-    return this.post<UserData>('users', { body: payload });
+  /**
+   * Todo usuário criado com sucesso é desativado automaticamente ao final do teste.
+   * Partial<> permite enviar corpos incompletos nos testes de validação.
+   */
+  async create(payload: Partial<CreateUserRequest>) {
+    const response = await this.post<UserData>('users', { body: payload });
+    if (response.status === 201) {
+      const { id } = response.data;
+      this.registerCleanup(`desativar usuário ${id}`, () => this.deactivate(id));
+    }
+    return response;
   }
 
   update(id: string, payload: UpdateUserRequest) {
     return this.patch<UserData>('users/{id}', { path: { id }, body: payload });
+  }
+
+  /** Soft delete: o usuário fica com active=false */
+  deactivate(id: string) {
+    return this.delete<UserData>('users/{id}', { path: { id } });
   }
 }

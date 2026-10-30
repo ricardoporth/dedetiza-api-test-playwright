@@ -10,6 +10,10 @@ O arquivo é a fonte do relatório: o conteúdo pode ser copiado direto para o t
 |---|---|---|---|---|---|
 | [BUG-001](BUG-001-permissao-audit-logs-fora-do-padrao.md) | Permissão `audit_logs:read` fora do padrão de nomenclatura | permissions | Baixa | Aberto | — |
 | [BUG-002](BUG-002-cep-aceita-letras-e-simbolos.md) | Validação de CEP aceita letras e símbolos | clients | Média | ✅ Corrigido (29/10) | — |
+| BUG-003 | *(reservado: perfil com usuários inativos não pode ser removido — será registrado com o teste de `DELETE /roles/{id}`)* | roles | — | — | — |
+| [BUG-004](BUG-004-email-duplicado-com-maiusculas.md) | E-mail duplicado com maiúsculas cria outra conta; login diferencia maiúsculas | users | Média | ✅ Corrigido (30/10) | — |
+| [BUG-005](BUG-005-nome-so-com-espacos.md) | Nome de usuário só com espaços é aceito | users | Baixa | ✅ Corrigido (30/10) | — |
+| [BUG-006](BUG-006-nome-longo-causa-erro-500.md) | Nome com mais de 255 caracteres causa erro 500 | users | Média | ✅ Corrigido (30/10) | — |
 
 ## Como registrar um bug novo
 

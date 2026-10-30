@@ -4,6 +4,8 @@ import { env } from '@config/env';
 import { withoutCoverage } from '@api/base.client';
 import { NO_PERMISSION_SESSION_FILE, isSessionReusable, readSession, saveSession } from '@auth/session-store';
 import { NO_PERMISSION_IDENTITY as identity } from '@auth/test-identities';
+import { RolesClient } from '@api/clients/roles.client';
+import { UsersClient } from '@api/clients/users.client';
 import { generateCpf } from '@utils/documents';
 
 /**
@@ -15,7 +17,12 @@ import { generateCpf } from '@utils/documents';
  *  3. Garante que o usuário fixo existe, ativo, nesse perfil, com uma senha nova.
  *  4. Faz login e salva a sessão em .auth/no-permission.json.
  */
-setup('autenticar usuário sem permissões', async ({ authClient, rolesClient, usersClient }) => {
+setup('autenticar usuário sem permissões', async ({ authClient, request, adminToken }) => {
+  // Clients SEM limpeza automática: o perfil e o usuário fixos precisam continuar existindo
+  // depois deste teste (os clients das fixtures desativariam o usuário ao final).
+  const rolesClient = new RolesClient(request, adminToken);
+  const usersClient = new UsersClient(request, adminToken);
+
   const cached = readSession(NO_PERMISSION_SESSION_FILE);
   if (cached && isSessionReusable(cached, { email: identity.email, tenantId: env.TENANT_ID })) {
     setup.info().annotations.push({ type: 'info', description: `Token reaproveitado do cache (válido até ${cached.expiresAt})` });
